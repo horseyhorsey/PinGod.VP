@@ -12,13 +12,19 @@ Sub LoadPinGoVpController ' PinGod.Vp.Controller. Requires modded Core Vbs for d
 		ExecuteGlobal GetTextFile("PinGod.vbs")
 		If Err Then MsgBox "Unable to open " & VBSfile & ". Ensure that it is in the same folder as this table. " & vbNewLine & Err.Description
 		Set Controller=CreateObject("PinGod.VP.Controller")		
-		If Err Then MsgBox "Failed to initialize PinGod.VP controller, is it registered?"
+		If Err Then MsgBox "Failed to initialize PinGod.VP controller, is it registered?" : Exit Sub
 	On Error Goto 0
 End Sub
 
 'Const BallSize = 25  'Ball radius
-Const GameDirectory = "C:\MyPinballGames\PinballGameGodotDirectory" ' This will load source from game directory
-Const IsDebug = True 'Set the controller to launch game debug or exported executable
+
+'Release builds
+'Const IsDebug = False
+'Const GameDirectory = "PinGod.BasicGame.exe"
+
+'Debug builds
+Const IsDebug = True
+Const GameDirectory = "C:\Users\funky\source\repos\PinGod\PinGod.VP.Examples\src\BasicGame\BasicGameGodot"
 Const UseSolenoids = 1 ' Check for solenoid states?
 Const UseLamps = True  ' Check for lamp states?
 'Const UsePdbLeds = False  ' PROC RGB Leds - TODO
@@ -41,19 +47,38 @@ Sub Table1_Init
 		else
 			.Run GetPlayerHWnd, GameDirectory ' With game exported executable
 		end if		
-	If Err Then MsgBox Err.Description
+	If Err Then MsgBox Err.Description : Exit Sub
 	End With
     On Error Goto 0	
 
-	'Wait for game display to be ready
-	do while not Controller.GameRunning
-	loop
+	If Err Then MsgBox Err.Description : Exit Sub
 	
-	'Init timers for
+	'Wait for game display to be ready so the VPPlayer doesn't get stuck
+	'Using any old game object Timer, usually you will have LeftFlipper but change this to what you please
+	LeftFlipper.TimerInterval = 369
+	LeftFlipper.TimerEnabled = 1		
+End Sub
+
+Sub LeftFlipper_Timer
+	LeftFlipper.TimerEnabled = 0
+	if not Controller.GameRunning Then LeftFlipper.TimerEnabled = 1 : Exit Sub
+
+	InitGame
+End Sub
+
+Dim initialized : initialized = 0
+Sub InitGame
+
+	if initialized then exit sub ' prevent any chance of init twice if author decides to use LFlipper Timers
+
+	'init core vbs, vpm
 	vpmInit me
-	vpmMapLights AllLamps		'Auto lamps collection
+	vpmMapLights AllLamps		'Auto lamps collection, lamp id in timerinterval
 	vpmCreateEvents AllSwitches 'Auto Switches collection from the swNum in timerInterval
-	PinMAMETimer.Interval=1 : PinMAMETimer.Enabled=1	
+
+	'Init timers for updates
+	pulsetimer.Enabled=1
+	PinMAMETimer.Enabled=1		
 
 	LoadingText.Visible = false
 	On Error Resume Next
@@ -67,6 +92,8 @@ Sub Table1_Init
 	bsTrough.InitExitSounds "BallRelease", ""
 	bsTrough.Reset		
 	If Err Then MsgBox Err.Description
+
+	initialized = 1
 	On Error Goto 0	
 	
 End Sub
@@ -370,51 +397,6 @@ End Sub
 Sub OnBallBallCollision(ball1, ball2, velocity)
 	PlaySound("fx_collide"), 0, Csng(velocity) ^2 / 2000, AudioPan(ball1), 0, Pitch(ball1), 0, 0, AudioFade(ball1)
 End Sub
-
-
-'*****************************************
-'	ninuzzu's	FLIPPER SHADOWS
-'*****************************************
-
-sub FlipperTimer_Timer()
-	FlipperLSh.RotZ = LeftFlipper.currentangle
-	FlipperRSh.RotZ = RightFlipper.currentangle
-
-End Sub
-
-'*****************************************
-'	ninuzzu's	BALL SHADOW
-'*****************************************
-Dim BallShadow
-BallShadow = Array (BallShadow1,BallShadow2,BallShadow3,BallShadow4,BallShadow5)
-
-Sub BallShadowUpdate_timer()
-    Dim BOT, b
-    BOT = GetBalls
-    ' hide shadow of deleted balls
-    If UBound(BOT)<(tnob-1) Then
-        For b = (UBound(BOT) + 1) to (tnob-1)
-            BallShadow(b).visible = 0
-        Next
-    End If
-    ' exit the Sub if no balls on the table
-    If UBound(BOT) = -1 Then Exit Sub
-    ' render the shadow for each ball
-    For b = 0 to UBound(BOT)
-        If BOT(b).X < Table1.Width/2 Then
-            BallShadow(b).X = ((BOT(b).X) - (Ballsize/6) + ((BOT(b).X - (Table1.Width/2))/7)) + 6
-        Else
-            BallShadow(b).X = ((BOT(b).X) + (Ballsize/6) + ((BOT(b).X - (Table1.Width/2))/7)) - 6
-        End If
-        ballShadow(b).Y = BOT(b).Y + 12
-        If BOT(b).Z > 20 Then
-            BallShadow(b).visible = 1
-        Else
-            BallShadow(b).visible = 0
-        End If
-    Next
-End Sub
-
 
 
 '************************************

@@ -1,1 +1,1 @@
-dotnet publish -c Release -r win-x86 PinGod.VP.csproj -o ./builds/PinGod.VP-x86 --self-contained
+dotnet publish -c Release -r win-x86 PinGod.VP.csproj -o ./builds/PinGod.VP-x86

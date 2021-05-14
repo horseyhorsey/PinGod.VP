@@ -48,7 +48,6 @@ namespace PinGod.VP
         {
             string displayArgs = BuildDisplayArguments();
             var sinfo = new ProcessStartInfo(game, displayArgs);
-            sinfo.WorkingDirectory = game;
             Run(vpHwnd, sinfo);
         }
 
@@ -103,7 +102,7 @@ namespace PinGod.VP
                 sender?.Close();
                 receiver = null;
                 sender = null;
-                displayProcess?.Kill();
+                //displayProcess?.Kill();
                 displayProcess = null;
             });
         }
