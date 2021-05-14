@@ -15,3 +15,8 @@ Run the `register-as-admin` or `unregister-as-admin` bat files to register / unr
 
 - Copy `core_c_sharp.vbs` and `PinGod.vbs` to `VisualPinball/Scripts`
 - See `PinGodTableExample.vbs` on how to use in a visual pinball script.
+
+## Examples
+---
+
+https://github.com/horseyhorsey/PinGod.VP.Examples
