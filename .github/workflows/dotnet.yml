@@ -18,10 +18,10 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet PinGod.VP.csproj restore
+      run: dotnet "/home/runner/work/PinGod.VP/PinGod.VP/PinGod.VP.csproj" restore
     - name: Build
       run: dotnet build PinGod.VP.csproj --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c Release -r win-x86 PinGod.VP.csproj -o "/home/runner/work/PinGod.VP/PinGod.VP/builds/PinGod.VP-x86" | 7z a -tzip "${release_name}.zip" "/home/runner/work/PinGod.VP/PinGod.VP/builds/PinGod.VP-x86*"       
+      run: dotnet publish -c Release -r "/home/runner/work/PinGod.VP/PinGod.VP/PinGod.VP.csproj" -o "/home/runner/work/PinGod.VP/PinGod.VP/builds/PinGod.VP-x86" | 7z a -tzip "${release_name}.zip" "/home/runner/work/PinGod.VP/PinGod.VP/builds/PinGod.VP-x86*"       
