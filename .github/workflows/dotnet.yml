@@ -24,4 +24,9 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c Release -r "D:\a\PinGod.VP\PinGod.VP\PinGod.VP.csproj" -o "D:\a\PinGod.VP\PinGod.VP\builds\PinGod.VP-x86" | 7z a -tzip "${release_name}.zip" "D:\a\PinGod.VP\PinGod.VP\builds\PinGod.VP-x86*"       
+      run: dotnet publish -c Release -r "D:\a\PinGod.VP\PinGod.VP\PinGod.VP.csproj" -o "D:\a\PinGod.VP\PinGod.VP\builds\PinGod.VP-x86\"   
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: PinGod.VP
+        path: "D:\a\PinGod.VP\PinGod.VP\builds\PinGod.VP-x86"
