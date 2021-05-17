@@ -24,4 +24,5 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c Release -r "PinGod.VP.csproj"
+      run: dotnet publish -c Release -r win-x86 "PinGod.VP.csproj"
+      
