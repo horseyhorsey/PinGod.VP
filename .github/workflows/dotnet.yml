@@ -23,3 +23,16 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish -c Release -r win-x86 PinGod.VP.csproj -o ./builds/PinGod.VP-x86  
+      
+  release:
+    name: Release
+    strategy:
+      matrix:
+        kind: ['windows']
+        include:
+          - kind: windows
+            os: windows-latest
+            target: win-x86
+    runs-on: ${{ matrix.os }}          
