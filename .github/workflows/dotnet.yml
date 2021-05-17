@@ -18,9 +18,9 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet "/home/runner/work/PinGod.VP/PinGod.VP/PinGod.VP.csproj" restore
+      run: dotnet restore "/home/runner/work/PinGod.VP/PinGod.VP/PinGod.VP.csproj"
     - name: Build
-      run: dotnet build PinGod.VP.csproj --no-restore
+      run: dotnet build  "/home/runner/work/PinGod.VP/PinGod.VP/PinGod.VP.csproj" --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
