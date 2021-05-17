@@ -18,15 +18,10 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore "D:\a\PinGod.VP\PinGod.VP/PinGod.VP.csproj"
+      run: dotnet restore "PinGod.VP.csproj"
     - name: Build
-      run: dotnet build  "D:\a\PinGod.VP\PinGod.VP\PinGod.VP.csproj" --no-restore
+      run: dotnet build  "PinGod.VP.csproj" --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c Release -r "D:\a\PinGod.VP\PinGod.VP\PinGod.VP.csproj" -o "D:\a\PinGod.VP\PinGod.VP\builds\PinGod.VP-x86\"   
-    - name: Upload
-      uses: actions/upload-artifact@v2
-      with:
-        name: PinGod.VP
-        path: "D:\a\PinGod.VP\PinGod.VP\builds\PinGod.VP-x86"
+      run: dotnet publish -c Release -r "PinGod.VP.csproj"
