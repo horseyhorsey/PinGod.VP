@@ -24,14 +24,9 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c Release -r win-x86 "PinGod.VP.csproj" | 7z a -tzip "PinGod.VP-x86.zip" "D:\a\PinGod.VP\PinGod.VP\bin\Release\net5.0\win-x86*"
-    - name: Upload binaries to release  
-      uses: svenstaro/upload-release-action@v2
+      run: dotnet publish -c Release -r win-x86 "PinGod.VP.csproj"
+    - name: Build Artifact x86
+      uses: actions/upload-artifact@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: "PinGod.VP-x86.zip"
-        asset_name: PinGod.VP-x86.zip
-        tag: ${{ github.ref }}
-        overwrite: true
-        body: "latest"        
-      
+        name: PinGod.VP
+        path: D:\a\PinGod.VP\PinGod.VP\bin\Release\net5.0\win-x86\   
