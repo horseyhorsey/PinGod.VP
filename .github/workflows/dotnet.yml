@@ -29,4 +29,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: PinGod.VP
-        path: D:\a\PinGod.VP\PinGod.VP\PinGod.VP\bin\Release\net5.0\win-x86\   
+        path: D:\a\PinGod.VP\PinGod.VP\PinGod.VP\bin\Release\net5.0\win-x86\publish 
