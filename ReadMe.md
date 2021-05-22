@@ -29,26 +29,25 @@ When recieved these set the states in the controller, then when Visual Pinball i
 
 ## VP Controller Methods
 
-### SetAction
-
-VP: `Controller.SetAction "my_custom_action", 1`
-
-Create an action in the `InputMap` settings inside godot and invoke this.
-
 ### ChangedSolenoids
+---
 
 `Const UseSolenoids = 1 ' Check for solenoid states?`
-Const UsePdbLeds = True  ' PROC RGB Leds - TODO
+
 ### ChangedLamps
+---
 
 `Const UseLamps = True  ' Check for lamp states?`
+
 ### ChangedPDLeds
+---
 
 `Const UsePdbLeds = True  ' Check for led states?`
 
 See `core_c_sharp.vbs`
 
 ### Display Properties
+---
 
 ```
 	public bool DisplayFullScreen { get; set; }
@@ -78,16 +77,26 @@ Visual Pinball Example:
 ```
 
 ### Pause
+---
 
 VP `Controller.Pause 1`
 
 Runs `SetAction` to send `pause` to Godot
 
+### SetAction
+---
+
+VP: `Controller.SetAction "my_custom_action", 1`
+
+Create an action in the `InputMap` settings inside godot and invoke this.
+
 ### Stop
+---
 
 VP `Controller.Stop`
 
 ### Switch
+---
 
 `Controller.Switch 69, 1`
 
@@ -95,7 +104,8 @@ VP `Controller.Stop`
 
 `vpmPulseSw 69`
 
+### Run
 
-- Run(int wnd, string game) = Runs an exported game executable with no debug windows
-- RunDebug(int wnd, string game) = Runs `godot` with the given project directory
-- SetAction(string action, 
+`RunDebug GetPlayerHWnd, GameDirectory` Runs `godot` with the given project directory
+
+`Run GetPlayerHWnd, GameDirectory` Runs an exported game executable without debug.
