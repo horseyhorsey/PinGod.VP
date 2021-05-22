@@ -2928,18 +2928,19 @@ Sub PinMAMETimer_Timer
 			GICallback2 ChgGI(ii, 0), ChgGI(ii, 1)
 		Next
 	End If
-	If Not IsEmpty(ChgLed) Then
-		On Error Resume Next
+	If Not IsEmpty(ChgLed) Then		
+		On Error Resume Next			
 			For ii = 0 To UBound(ChgLed)
-				Dim color,ledstate
+				Dim color,state
 				idx = ChgLed(ii, 0)
-				color = ChgLed(ii, 1)
-				if color = 0 Then ledstate = 0 : Else ledstate = 1: End If
-
+				state = ChgLed(ii, 1)
+				color = ChgLed(ii, 2)			
+				debug.print "led color" & color
+				if color = 0 Then state = 0
 				If IsArray(Lights(idx)) Then
-					For Each tmp In Lights(idx) : tmp.Color = color : tmp.State = ledstate : Next
+					For Each tmp In Lights(idx) : tmp.Color = color : tmp.State = state : Next
 				Else
-					Lights(idx).Color = color : Lights(idx).State = ledstate
+					Lights(idx).Color = color : Lights(idx).State = state
 				End If
 			Next
 			For Each tmp In vpmMultiLights

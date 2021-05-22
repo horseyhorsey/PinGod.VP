@@ -114,7 +114,7 @@ Function vpmKeyUp(ByVal keycode)
 			'Case keyShowKeys     .Pause = True : vpmShowHelp : .Pause = False
 			'Case keyShowDips     If IsObject(vpmShowDips) Then .Pause = True : vpmShowDips : .Pause = False
 			'Case keyAddBall      .Pause = True : vpmAddBall  : .Pause = False
-			Case keyReset        .Stop : BeginModal : .Run : vpmTimer.Reset : EndModal
+			'Case keyReset        .Stop : BeginModal : .Run : vpmTimer.Reset : EndModal
 			Case keyFrame        .LockDisplay = Not .LockDisplay
 			Case keyDoubleSize   .DoubleSize  = Not .DoubleSize
 			Case Else            vpmKeyUp = False

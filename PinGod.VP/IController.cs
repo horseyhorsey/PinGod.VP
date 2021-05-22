@@ -19,17 +19,7 @@ namespace PinGod.VP
         bool DisplayNoWindow { get; set; }
         #endregion
 
-        bool GameRunning { get; set; }
-        
-        /// <summary>
-        /// Set the array size of coils to check for
-        /// </summary>
-        byte CoilCount { get; set; }
-        /// <summary>
-        /// Set the array size of lamps to check for
-        /// </summary>
-        byte LampCount { get; set; }
-
+        bool GameRunning { get; set; }       
         int SendPort { get; set; }
         int ReceivePort { get; set; }
 
@@ -46,6 +36,20 @@ namespace PinGod.VP
         /// <returns>object[i,2] Id, State</returns>
         [ComVisible(true)]
         dynamic ChangedLamps();
+
+        /// <summary>
+        /// Get changed leds
+        /// </summary>
+        /// <returns>object[i,3] Id, State, colour (ole)</returns>
+        [ComVisible(true)]
+        dynamic ChangedPDLeds();
+
+        /// <summary>
+        /// TODO: Sometimes on pause it won't resume from that state
+        /// </summary>
+        /// <param name="paused"></param>
+        [ComVisible(true)]
+        void Pause(int paused);
 
         /// <summary>
         /// Runs a packaged game, no debug (if set by developer on export)
@@ -84,12 +88,5 @@ namespace PinGod.VP
         /// <param name="state"></param>
         [ComVisible(true)]
         void Switch(int swNum, int state);
-
-        /// <summary>
-        /// TODO: Sometimes on pause it won't resume from that state
-        /// </summary>
-        /// <param name="paused"></param>
-        [ComVisible(true)]
-        void Pause(int paused);
     }
 }
