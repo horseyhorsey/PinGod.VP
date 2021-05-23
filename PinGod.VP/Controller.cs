@@ -1,15 +1,9 @@
-﻿using Newtonsoft.Json;
-using Rug.Osc.Core;
+﻿using Rug.Osc.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PinGod.VP

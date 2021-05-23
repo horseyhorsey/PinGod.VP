@@ -20,7 +20,7 @@ namespace PinGod.VP
         byte[] _lampStates;
         int[] _ledStates;
 
-        bool mutexCreated;
+        private bool mutexCreated = false;
         public void CreateMemoryMap(long size = MAP_SIZE, int coils = 32, int lamps = 64, int leds = 64)
         {
             if (mutex == null)

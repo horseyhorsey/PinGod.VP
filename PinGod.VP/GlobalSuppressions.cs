@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>", Scope = "member", Target = "~M:PinGod.VP.Controller.GetCoils~System.Object[,]")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>", Scope = "member", Target = "~M:PinGod.VP.MemoryMap.CreateMemoryMap(System.Int64,System.Int32,System.Int32,System.Int32)")]
