@@ -19,6 +19,12 @@ namespace PinGod.VP
         bool DisplayNoWindow { get; set; }
         #endregion
 
+        #region Machine Items
+        byte CoilCount { get; set; }
+        byte LampCount { get; set; }
+        byte LedCount { get; set; }
+        #endregion
+
         bool GameRunning { get; set; }       
         int SendPort { get; set; }
         int ReceivePort { get; set; }
@@ -43,6 +49,13 @@ namespace PinGod.VP
         /// <returns>object[i,3] Id, State, colour (ole)</returns>
         [ComVisible(true)]
         dynamic ChangedPDLeds();
+
+        /// <summary>
+        /// Used by the implementing class. Here for testing creating maps without display
+        /// </summary>
+        /// <param name="size"></param>
+        [ComVisible(true)]
+        void CreateMemoryMap(long size = 2048);
 
         /// <summary>
         /// TODO: Sometimes on pause it won't resume from that state

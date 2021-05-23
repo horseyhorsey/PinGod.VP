@@ -1,18 +1,22 @@
 ﻿using Newtonsoft.Json;
 using Rug.Osc.Core;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PinGod.VP
 {
     [ComVisible(true)]
     [GuidAttribute(ContractGuids.ControllerClass)]
-    public class Controller : IController
+    public class Controller : IController, IDisposable
     {
         /// <summary>
         /// Sends switch events and other actions
@@ -20,16 +24,11 @@ namespace PinGod.VP
         private OscSender sender;
         private OscReceiver receiver;
         private Process displayProcess;
+        private MemoryMap _memoryMap;
 
-        byte[,] _coilStates;
-        byte[,] _lastCoilStates;
-        byte[,] _lampStates;        
-        byte[,] _lastLampStates;
-        int[,] _ledStates;
-        int[,] _lastLedStates;
-        object _coilLock = new object();
-        object _lampLock = new object();
-        object _ledLock = new object();
+        byte[] _lastCoilStates;       
+        byte[] _lastLampStates;       
+        int[] _lastLedStates;
 
         public bool ControllerRunning { get; set; }
         public bool GameRunning { get; set; }
@@ -49,32 +48,54 @@ namespace PinGod.VP
 
         public int SendPort { get; set; } = 9000;
         public int ReceivePort { get; set; } = 9001;
+        public byte CoilCount { get; set; } = 32;
+        public byte LampCount { get; set; } = 64;
+        public byte LedCount { get; set; } = 64;
 
         int vpHwnd;
 
+        public Controller()
+        {
+            _memoryMap = new MemoryMap();            
+        }
+
+        public void CreateMemoryMap(long size = 2048)
+        {
+            _memoryMap.CreateMemoryMap(size, coils: CoilCount, lamps: LampCount, leds: LedCount);
+        }
+
+        /// <summary>
+        /// Gets changed from memory map
+        /// </summary>
+        /// <returns>object[,2]</returns>
         public dynamic ChangedLamps()
         {
-            //find any changed lamps since last checked
-            var changed = new List<KeyValuePair<int, int>>();
-            var arr = new object[0, 2];
+            var _lampStates = _memoryMap.GetLampStates();
+            var arr = new int[0, 2];
             if (_lastLampStates == null)
             {
-                _lastLampStates = _lampStates;
+                _lastLampStates = new byte[_lampStates.Length];
+                _lampStates.CopyTo(_lastLampStates, 0);
                 return arr;
             }
-            else if (_lampStates != _lastLampStates)
+            if (_lampStates != _lastLampStates)
             {
-                //collect the changed lamps
-                for (int i = 0; i < _lampStates.Length/2; i++)
+                //collect the changed coils
+                List<int> chgd = new List<int>();
+                for (int i = 0; i < _lampStates.Length; i += 2)
                 {
-                    if (_lampStates[i, 1] != _lastLampStates[i, 1])
+                    if (_lampStates[i + 1] != _lastLampStates[i + 1])
                     {
-                        changed.Add(new KeyValuePair<int, int>(_lampStates[i, 0], _lampStates[i, 1]));
+                        chgd.Add(_lampStates[i]);
+                        chgd.Add(_lampStates[i + 1]);
                     }
                 }
-                _lastLampStates = _lampStates;
-                //create object[,] to send back (VP)
-                arr = ToObjectArray(changed);                
+
+                //create int[,] to send back (VP)
+                arr = new int[chgd.Count / 2, 2];
+                //Array.Copy(chgd.ToArray(), arr, chgd.Count); //Cant array copy multi dimension?
+                Buffer.BlockCopy(chgd.ToArray(), 0, arr, 0, chgd.Count);
+                _lampStates.CopyTo(_lastLampStates, 0);
                 return arr;
             }
             else
@@ -83,76 +104,103 @@ namespace PinGod.VP
             }
         }
 
-        class Led
-        {
-            public int Num { get; set; }
-            public int State { get; set; }
-            public int Color { get; set; }
-        }
-
+        /// <summary>
+        /// Gets changed from memory map
+        /// </summary>
+        /// <returns>object[,3]</returns>
         public dynamic ChangedPDLeds()
         {
-            //find any changed leds since last checked
-            var changed = new List<Led>();
+            var _ledStates = _memoryMap.GetLedStates();
             var arr = new object[0, 3];
             if (_lastLedStates == null)
             {
-                _lastLedStates = _ledStates;
-                return arr;
+                _lastLedStates = new int[_ledStates.Length];
+                _ledStates.CopyTo(_lastLedStates, 0);
+                return null;
             }
-            else if (_ledStates != _lastLedStates)
+            if (_ledStates != _lastLedStates)
             {
-                //collect the changed lamps
-                for (int i = 0; i < _ledStates.Length / 3; i++)
+                //collect the changed coils
+                List<int> chgd = new List<int>();
+                for (int i = 0; i < _ledStates.Length; i+=3)
                 {
-                    if (_ledStates[i, 1] != _lastLedStates[i, 1] || _ledStates[i, 2] != _lastLedStates[i, 2])
+                    //check for state and colour
+                    if (_ledStates[i + 1] != _lastLedStates[i + 1] || _ledStates[i + 2] != _lastLedStates[i + 2])
                     {
-                        changed.Add(new Led() { Num = _ledStates[i, 0], State = _ledStates[i, 1], Color = _ledStates[i, 2] });
+                        chgd.Add(_ledStates[i]);
+                        chgd.Add(_ledStates[i+1]);
+                        chgd.Add(_ledStates[i+2]);
                     }
                 }
-                
-                //create object[,] to send back (VP)
-                arr = new object[changed.Count, 3];
-                int ii = 0;
-                foreach (var coil in changed)
+
+                if (chgd.Count <= 0)
+                    return null;
+
+                //create int[,] to send back (VP)
+                //Array.Copy(chgd.ToArray(), arr, chgd.Count); //Cant array copy multi dimension?
+
+                //arr = new int[chgd.Count/3, 3];                
+                //Buffer.BlockCopy(chgd.ToArray(), 0, arr, 0, chgd.Count);
+
+                //have to convert the object array for VP, PITA
+                int c = 0;
+                arr = new object[chgd.Count / 3, 3];
+                for (int ii = 0; ii < chgd.Count; ii +=3)
                 {
-                    arr[ii, 0] = coil.Num; 
-                    arr[ii, 1] = coil.State;
-                    arr[ii, 2] = coil.Color;
-                    ii++;
+                    arr[c, 0] = chgd[ii];
+                    arr[c, 1] = chgd[ii + 1];
+                    arr[c, 2] = chgd[ii + 2];
+                    c++;
                 }
-                _lastLedStates = _ledStates;
+
+                _ledStates.CopyTo(_lastLedStates, 0);
                 return arr;
             }
             else
             {
-                return arr;
+                return null;
             }
         }
 
+        /// <summary>
+        /// Gets changed from memory map
+        /// </summary>
+        /// <returns>object[,2]</returns>
         public dynamic ChangedSolenoids()
         {
-            //find any changed coils since last checked
-            var changed = new List<KeyValuePair<int, int>>();
+            var _coilStates = _memoryMap.GetCoilStates();
             var arr = new object[0, 2];
             if (_lastCoilStates == null)
             {
-                _lastCoilStates = _coilStates;
+                _lastCoilStates = new byte[_coilStates.Length];
+                _coilStates.CopyTo(_lastCoilStates, 0);
                 return arr;
             }
-            else if (_coilStates != _lastCoilStates)
-            {
+            if (_coilStates != _lastCoilStates)
+            {                
                 //collect the changed coils
-                for (int i = 0; i < _coilStates.Length / 2; i++)
+                List<byte> chgd = new List<byte>();                
+                for (int i = 0; i < _coilStates.Length; i+=2)
                 {
-                    if (_coilStates[i, 1] != _lastCoilStates[i, 1])
+                    if (_coilStates[i+1] != _lastCoilStates[i+1])
                     {
-                        changed.Add(new KeyValuePair<int, int>(_coilStates[i, 0], _coilStates[i, 1]));
+                        chgd.Add(_coilStates[i]); 
+                        chgd.Add(_coilStates[i+1]);
                     }
                 }
-                _lastCoilStates = _coilStates;
-                //create object[,] to send back (VP)
-                arr = ToObjectArray(changed);
+
+                //have to convert the object array for VP, PITA
+                int c = 0;
+                arr = new object[chgd.Count/2, 2];                
+                for (int ii = 0; ii < chgd.Count; ii+=2)
+                {
+                    arr[c, 0] = chgd[ii];
+                    arr[c, 1] = chgd[ii+1];
+                    c++;
+                }
+                //Array.Copy(chgd.ToArray(), arr, chgd.Count); //Cant array copy multi dimension?
+                //Buffer.BlockCopy(chgd.ToArray(), 0, arr, 0, chgd.Count);
+                _coilStates.CopyTo(_lastCoilStates, 0);
                 return arr;
             }
             else
@@ -174,7 +222,7 @@ namespace PinGod.VP
                 sender.Connect();
             }
 
-            //recieve messages from the game. Coils, Lamps
+            //receive /evt messages from window
             if (receiver == null)
             {
                 receiver = new OscReceiver(IPAddress.Loopback, ReceivePort);
@@ -194,40 +242,7 @@ namespace PinGod.VP
                                 ActivateVpWindow(vpHwnd);
                                 GameRunning = true;
                             }
-                        }
-                        else if (message.Address == "/all_coils")
-                        {
-                            var coils = JsonConvert.DeserializeObject<byte[,]>(message[0].ToString());
-                            if (coils != null)
-                            {
-                                lock (_coilLock)
-                                {
-                                    _coilStates = coils;
-                                }
-                            }
-                        }
-                        else if (message.Address == "/all_lamps")
-                        {
-                            var lamps = JsonConvert.DeserializeObject<byte[,]>(message[0].ToString());
-                            if (lamps != null)
-                            {
-                                lock (_lampLock)
-                                {
-                                    _lampStates = lamps;
-                                }
-                            }
-                        }
-                        else if (message.Address == "/all_leds")
-                        {
-                            var leds = JsonConvert.DeserializeObject<int[,]>(message[0].ToString());
-                            if (leds != null)
-                            {
-                                lock (_ledLock)
-                                {
-                                    _ledStates = leds;
-                                }
-                            }
-                        }                        
+                        }                 
                     }
                 });
             }
@@ -261,12 +276,10 @@ namespace PinGod.VP
             sinfo.WorkingDirectory = game;
             Run(vpHwnd, sinfo);
         }
-
         public void SetAction(string action, int pressed)
         {
-            sender.Send(new OscMessage("/action", action, pressed));
+            sender?.Send(new OscMessage("/action", action, pressed));
         }
-
         /// <summary>
         /// Stop and clean up
         /// </summary>
@@ -282,6 +295,8 @@ namespace PinGod.VP
             sender = null;
             //displayProcess?.Kill();
             displayProcess = null;
+
+            this.Dispose();
         }
 
         /// <summary>
@@ -305,7 +320,6 @@ namespace PinGod.VP
             if (vpHwnd > 0)
                 SetForegroundWindow(vpHwnd);
         }
-
         private string BuildDisplayArguments()
         {
             var displayArgs = $"--position {DisplayX}, {DisplayY} ";
@@ -325,25 +339,25 @@ namespace PinGod.VP
         private void Run(int vpHwnd, ProcessStartInfo startInfo)
         {
             this.vpHwnd = vpHwnd;
+
+            CreateMemoryMap();
+            ConnectOsc();            
+
             //send switches
             ControllerRunning = true;
-            ConnectOsc();
 
             displayProcess = new Process();
             displayProcess.StartInfo = startInfo;
             displayProcess.Start();
         }
-        private static object[,] ToObjectArray(List<KeyValuePair<int, int>> changed)
-        {
-            object[,] arr = new object[changed.Count, 2];
-            int ii = 0;
-            foreach (var coil in changed)
-            {
-                arr[ii, 0] = coil.Key; arr[ii, 1] = coil.Value;
-                ii++;
-            }
 
-            return arr;
+        bool isDisposing = false;        
+        public void Dispose()
+        {
+            if (isDisposing) return;
+            isDisposing = true;
+            _memoryMap.Dispose();
+
         }
         #endregion
     }
