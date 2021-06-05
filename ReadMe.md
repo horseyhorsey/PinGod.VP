@@ -3,28 +3,31 @@
 
 A COM controller to send / receive pinball events to Godot display.
 
-These are sent and received via OSC control on local Loopback address. Default ports 9000/9001
+Switches are sent and can be received via OSC control on local Loopback address. Default ports 9000/9001
+
+`Coils, Lamps and Leds` states are read from a memory map created by the game.
 
 ## Controller Registry
 
-Run the `register-as-admin` or `unregister-as-admin` bat files to register / unregister
+- .NET 5.0 Desktop Runtime or SDK [Download](https://dotnet.microsoft.com/download/dotnet/5.0)
+- Run the `register-as-admin` or `unregister-as-admin` bat files to register / unregister
 
 ## Visual Pinball Setup
 
 - Copy `core_c_sharp.vbs` and `PinGod.vbs` to `VisualPinball/Scripts`
+- Tables must have a `PinMameTimer` and `PulseTimer` to get updates from controller. See the [BasicGame VPX][BasicGameVP Script](https://github.com/horseyhorsey/PinGod.VP.Examples/blob/master/src/BasicGame/BasicGameVisualPinball) 
 
 ## Examples
 
 See Visual Pinball directories in games folder for examples [Examples](https://github.com/horseyhorsey/PinGod.VP.Examples)
 
+[BasicGameVP Script](https://github.com/horseyhorsey/PinGod.VP.Examples/blob/master/src/BasicGame/BasicGameVisualPinball/PinGodVp-BasicGame-VPX10-6.vbs)
+
+[MoonStationVP Script](https://github.com/horseyhorsey/PinGod.VP.Examples/blob/master/src/MoonStation/MoonStationVisualPinball/MoonStation%20(PinGod)-VPX10-6.vbs)
+
 ## Adresses - OSC
 
 - `/evt` - "game_ready"
-- `/all_coils` - byte[n,2] = num, state
-- `/all_lamps` - byte[n,2] = num, state
-- `/all_leds` - byte[n,3] = num, state, color(ole)
-
-When recieved these set the states in the controller, then when Visual Pinball invokes changed methods we see send back changed states.
 
 ## VP Controller Methods
 
@@ -36,14 +39,24 @@ When recieved these set the states in the controller, then when Visual Pinball i
 ### ChangedLamps
 ---
 
-`Const UseLamps = True  ' Check for lamp states?`
+`Const UseLamps = 1  ' Check for lamp states?`
+
+*Must be excplitly set to 0 if not using them and want to save some process*
 
 ### ChangedPDLeds
 ---
 
-`Const UsePdbLeds = True  ' Check for led states?`
+`Const UsePdbLeds = 1  ' Check for led states?`
+
+*Must be excplitly set to 0 if not using them and want to save some process*
 
 See `core_c_sharp.vbs`
+
+### Run
+
+`RunDebug GetPlayerHWnd, GameDirectory` Runs `godot` with the given project directory
+
+`Run GetPlayerHWnd, GameDirectory` Runs an exported game executable without debug.
 
 ### Display Properties
 ---
@@ -75,6 +88,21 @@ Visual Pinball Example:
 	.DisplayNoWindow 	= False
 ```
 
+### Extra Machine Items
+
+By default the memory is allocated a set number of items.
+
+- Coils = 34, Lamps = 64, Leds  = 64
+
+If you want to increase you can add properties like the above display properties.
+
+```
+With Controller
+.LampCount			= 81
+.LedCount			= 72
+.CoilCount			= 63
+```
+
 ### Pause
 ---
 
@@ -103,8 +131,3 @@ VP `Controller.Stop`
 
 `vpmPulseSw 69`
 
-### Run
-
-`RunDebug GetPlayerHWnd, GameDirectory` Runs `godot` with the given project directory
-
-`Run GetPlayerHWnd, GameDirectory` Runs an exported game executable without debug.
