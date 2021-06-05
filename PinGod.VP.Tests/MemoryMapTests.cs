@@ -60,7 +60,7 @@ namespace PinGod.VP.Tests
             var va = mmf.CreateViewAccessor(Controller.CoilCount * 2, Controller.LampCount * 2, MemoryMappedFileAccess.ReadWrite);
 
             //call the controller once to init states then set 23=1 and assert that change
-            int[,] arrResult = Controller.ChangedLamps();
+            object[,] arrResult = Controller.ChangedLamps();
             lamps[0] = 23; lamps[1] = 1;
             va.WriteArray(0, lamps, 0, lamps.Length);
             arrResult = Controller.ChangedLamps();

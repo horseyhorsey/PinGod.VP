@@ -2889,7 +2889,8 @@ Sub PinMAMETimer_Timer
 	On Error Goto 0
 	If Not IsEmpty(ChgLamp) Then
 		On Error Resume Next
-			For ii = 0 To UBound(ChgLamp)
+			For ii = 0 To UBound(ChgLamp) 
+				'Debug.Print "lamps changed"
 				idx = ChgLamp(ii, 0)
 				If IsArray(Lights(idx)) Then
 					For Each tmp In Lights(idx) : tmp.State = ChgLamp(ii, 1) : Next
@@ -2908,6 +2909,7 @@ Sub PinMAMETimer_Timer
 			nsol = ChgSol(ii, 0)
 			tmp = SolCallback(nsol)
 			solon = ChgSol(ii, 1)
+			'debug.print "coil: " & nsol & " on:" & solon
 			If solon > 1 Then solon = 1
 			If UseModSol Then
 				If solon <> SolPrevState(nsol) Then
@@ -2935,7 +2937,7 @@ Sub PinMAMETimer_Timer
 				idx = ChgLed(ii, 0)
 				state = ChgLed(ii, 1)
 				color = ChgLed(ii, 2)			
-				debug.print "led color" & color
+				'debug.print "led: " & idx & " state:" & color
 				if color = 0 Then state = 0
 				If IsArray(Lights(idx)) Then
 					For Each tmp In Lights(idx) : tmp.Color = color : tmp.State = state : Next

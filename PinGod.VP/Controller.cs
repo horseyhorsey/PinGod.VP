@@ -64,32 +64,39 @@ namespace PinGod.VP
         /// <returns>object[,2]</returns>
         public dynamic ChangedLamps()
         {
-            var _lampStates = _memoryMap.GetLampStates();
-            var arr = new int[0, 2];
+            var _lampsStates = _memoryMap.GetLampStates();
+            var arr = new object[0, 2];
             if (_lastLampStates == null)
             {
-                _lastLampStates = new byte[_lampStates.Length];
-                _lampStates.CopyTo(_lastLampStates, 0);
+                _lastLampStates = new byte[_lampsStates.Length];
+                _lampsStates.CopyTo(_lastLampStates, 0);
                 return arr;
             }
-            if (_lampStates != _lastLampStates)
+            if (_lampsStates != _lastLampStates)
             {
                 //collect the changed coils
-                List<int> chgd = new List<int>();
-                for (int i = 0; i < _lampStates.Length; i += 2)
+                List<byte> chgd = new List<byte>();
+                for (int i = 0; i < _lampsStates.Length; i += 2)
                 {
-                    if (_lampStates[i + 1] != _lastLampStates[i + 1])
+                    if (_lampsStates[i + 1] != _lastLampStates[i + 1])
                     {
-                        chgd.Add(_lampStates[i]);
-                        chgd.Add(_lampStates[i + 1]);
+                        chgd.Add(_lampsStates[i]);
+                        chgd.Add(_lampsStates[i + 1]);
                     }
                 }
 
-                //create int[,] to send back (VP)
-                arr = new int[chgd.Count / 2, 2];
+                //have to convert the object array for VP, PITA
+                int c = 0;
+                arr = new object[chgd.Count / 2, 2];
+                for (int ii = 0; ii < chgd.Count; ii += 2)
+                {
+                    arr[c, 0] = chgd[ii];
+                    arr[c, 1] = chgd[ii + 1];
+                    c++;
+                }
                 //Array.Copy(chgd.ToArray(), arr, chgd.Count); //Cant array copy multi dimension?
-                Buffer.BlockCopy(chgd.ToArray(), 0, arr, 0, chgd.Count);
-                _lampStates.CopyTo(_lastLampStates, 0);
+                //Buffer.BlockCopy(chgd.ToArray(), 0, arr, 0, chgd.Count);
+                _lampsStates.CopyTo(_lastLampStates, 0);
                 return arr;
             }
             else
