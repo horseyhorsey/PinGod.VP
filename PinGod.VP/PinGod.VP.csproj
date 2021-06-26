@@ -9,29 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Rug.Osc.Core" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="register-as-admin.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="unregister-as-admin.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="VP_Scripts\core_c_sharp.vbs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="VP_Scripts\PinGodTableExample.vbs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="VP_Scripts\PinGod.vbs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PinGod.VP.Domain\PinGod.VP.Domain.csproj" />
   </ItemGroup>
 
   <Target Name="ServerUsage" Condition="'$(RegFree)' != 'True'" AfterTargets="Build">

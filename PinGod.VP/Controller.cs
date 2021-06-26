@@ -1,8 +1,7 @@
-﻿using Rug.Osc.Core;
+﻿using PinGod.VP.Domain;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -12,11 +11,6 @@ namespace PinGod.VP
     [GuidAttribute(ContractGuids.ControllerClass)]
     public class Controller : IController, IDisposable
     {
-        /// <summary>
-        /// Sends switch events and other actions
-        /// </summary>
-        private OscSender sender;
-        private OscReceiver receiver;
         private Process displayProcess;
         private MemoryMap _memoryMap;
 
@@ -40,11 +34,10 @@ namespace PinGod.VP
         public bool DisplayMaximized { get; set; }
         #endregion
 
-        public int SendPort { get; set; } = 9000;
-        public int ReceivePort { get; set; } = 9001;
         public byte CoilCount { get; set; } = 32;
         public byte LampCount { get; set; } = 64;
         public byte LedCount { get; set; } = 64;
+        public byte SwitchCount { get; set; } = 64;
 
         int vpHwnd;
 
@@ -210,52 +203,19 @@ namespace PinGod.VP
             }
         }
 
-        public void ConnectOsc()
+        private void SetGameDisplayRunning()
         {
-            if (sender == null)
-            {
-                sender = new OscSender(IPAddress.Loopback, SendPort);
-                sender.Connect();
-            }
-            else
-            {
-                sender.Close();
-                sender.Connect();
-            }
-
-            //receive /evt messages from window
-            if (receiver == null)
-            {
-                receiver = new OscReceiver(IPAddress.Loopback, ReceivePort);
-                Task.Run(() =>
-                {
-                    receiver.Connect();
-                    while (receiver?.State == OscSocketState.Connected)
-                    {
-                        var packet = receiver?.Receive();
-                        var bytes = packet.ToByteArray();
-                        var message = OscMessage.Read(bytes, bytes.Length);
-
-                        if (message.Address == "/evt")
-                        {
-                            if (message[0].ToString() == "game_ready")
-                            {
-                                ActivateVpWindow(vpHwnd);
-                                GameRunning = true;
-                            }
-                        }                 
-                    }
-                });
-            }
+            ActivateVpWindow(vpHwnd);
         }
 
         /// <summary>
-        /// Pause the display
+        /// Pause the display with Switch 0 and value
         /// </summary>
         /// <param name="paused"></param>
         public void Pause(int paused)
         {
-            SetAction($"pause", paused);
+            if (paused > 0) Switch(0, (int)GameSyncState.pause);
+            else Switch(0, (int)GameSyncState.resume);
         }
 
         public void Run(int vpHwnd, string game)
@@ -277,23 +237,18 @@ namespace PinGod.VP
             sinfo.WorkingDirectory = game;
             Run(vpHwnd, sinfo);
         }
-        public void SetAction(string action, int pressed)
-        {
-            sender?.Send(new OscMessage("/action", action, pressed));
-        }
+
         /// <summary>
         /// Stop and clean up
         /// </summary>
         public void Stop()
         {
-            SetAction($"quit", 1);
+            Switch(0, (int)GameSyncState.quit);
+            Task.Delay(100);
+
             ControllerRunning = false;
             GameRunning = false;
 
-            receiver?.Close();
-            sender?.Close();
-            receiver = null;
-            sender = null;
             //displayProcess?.Kill();
             displayProcess = null;
 
@@ -301,13 +256,16 @@ namespace PinGod.VP
         }
 
         /// <summary>
-        /// Sends a switch state
+        /// Writes a switch state
         /// </summary>
         /// <param name="swNum"></param>
         /// <param name="state"></param>
         public void Switch(int swNum, int state)
         {
-            SetAction($"sw{swNum}", state);
+            if(swNum >= 0 && swNum < 256)
+            {
+                _memoryMap.SetSwitch(swNum, (byte)state);
+            }            
         }
 
         #region Private methods
@@ -339,17 +297,39 @@ namespace PinGod.VP
         private static extern System.IntPtr SetForegroundWindow(int hWnd);
         private void Run(int vpHwnd, ProcessStartInfo startInfo)
         {
+            //VP game window
             this.vpHwnd = vpHwnd;
 
+            //create mapping for machine states
             CreateMemoryMap();
-            ConnectOsc();            
 
             //send switches
             ControllerRunning = true;
 
+            //run the game display
             displayProcess = new Process();
             displayProcess.StartInfo = startInfo;
             displayProcess.Start();
+
+            //wait for the game window to send over the 0 coil to enable Visual Pinball
+            Task.Run(() =>
+            {
+                while (!GameRunning)
+                {                    
+                    var coils = _memoryMap.GetCoilStates();
+                    for (int i = 0; i < coils.Length; i+=2)
+                    {
+                        if(coils[i] == 0 && coils[i+1] == 1)
+                        {                                                        
+                            SetGameDisplayRunning();
+                            GameRunning = true;
+                            break;
+                        }
+                    }
+
+                    Task.Delay(50);
+                }                
+            });
         }
 
         bool isDisposing = false;        
@@ -357,8 +337,8 @@ namespace PinGod.VP
         {
             if (isDisposing) return;
             isDisposing = true;
-            _memoryMap.Dispose();
-
+            try { _memoryMap.Dispose(); }catch { }
+            
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿namespace PinGod.VP
+﻿namespace PinGod.VP.Domain
 {
     public sealed class ContractGuids
     {

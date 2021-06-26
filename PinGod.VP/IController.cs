@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace PinGod.VP
+namespace PinGod.VP.Domain
 {
     [ComVisible(true)]
     [Guid(ContractGuids.ControllerInterface)]
@@ -23,11 +23,10 @@ namespace PinGod.VP
         byte CoilCount { get; set; }
         byte LampCount { get; set; }
         byte LedCount { get; set; }
+        byte SwitchCount { get; set; }
         #endregion
 
         bool GameRunning { get; set; }       
-        int SendPort { get; set; }
-        int ReceivePort { get; set; }
 
         /// <summary>
         /// Get changed coils / solenoids receive
@@ -58,7 +57,7 @@ namespace PinGod.VP
         void CreateMemoryMap(long size = 2048);
 
         /// <summary>
-        /// TODO: Sometimes on pause it won't resume from that state
+        /// Pause the display
         /// </summary>
         /// <param name="paused"></param>
         [ComVisible(true)]
@@ -81,21 +80,13 @@ namespace PinGod.VP
         void RunDebug(int vpHwnd, string game);
 
         /// <summary>
-        /// Sends an action to the display. InputMap in Godot
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="pressed"></param>
-        [ComVisible(true)]
-        void SetAction(string action, int pressed);
-
-        /// <summary>
         /// Stops and kills the display
         /// </summary>
         [ComVisible(true)]
         void Stop();
 
         /// <summary>
-        /// Sends a switch event /sw to be picked up by InputMap in Godot
+        /// Writes a switch event /sw to be picked up by InputMap in Godot
         /// </summary>
         /// <param name="swNum"></param>
         /// <param name="state"></param>
