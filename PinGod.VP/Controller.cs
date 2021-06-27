@@ -319,16 +319,18 @@ namespace PinGod.VP
                     var coils = _memoryMap.GetCoilStates();
                     for (int i = 0; i < coils.Length; i+=2)
                     {
-                        if(coils[i] == 0 && coils[i+1] == 1)
-                        {                                                        
-                            SetGameDisplayRunning();
-                            GameRunning = true;
+                        if(coils[i] == 0)
+                        {               
+                            if(coils[i + 1] == 1)
+                            {
+                                SetGameDisplayRunning();
+                                GameRunning = true;
+                            }      
                             break;
                         }
                     }
-
-                    Task.Delay(50);
-                }                
+                    Task.Delay(369);
+                }
             });
         }
 

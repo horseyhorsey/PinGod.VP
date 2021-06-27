@@ -3,18 +3,14 @@
 
 A COM controller to send / receive pinball events to Godot display.
 
-Switches are sent and can be received via OSC control on local Loopback address. Default ports 9000/9001
-
-`Coils, Lamps and Leds` states are read from a memory map created by the game.
-
 ## Controller Registry
 
-- .NET 5.0 Desktop Runtime or SDK [Download](https://dotnet.microsoft.com/download/dotnet/5.0)
-- Run the `register-as-admin` or `unregister-as-admin` bat files to register / unregister
+Use setup application to simplify regasm usage.
 
 ## Visual Pinball Setup
 
 - Copy `core_c_sharp.vbs` and `PinGod.vbs` to `VisualPinball/Scripts`
+
 - Tables must have a `PinMameTimer` and `PulseTimer` to get updates from controller. See the [BasicGame VPX][BasicGameVP Script](https://github.com/horseyhorsey/PinGod.VP.Examples/blob/master/src/BasicGame/BasicGameVisualPinball) 
 
 ## Examples
@@ -24,10 +20,6 @@ See Visual Pinball directories in games folder for examples [Examples](https://g
 [BasicGameVP Script](https://github.com/horseyhorsey/PinGod.VP.Examples/blob/master/src/BasicGame/BasicGameVisualPinball/PinGodVp-BasicGame-VPX10-6.vbs)
 
 [MoonStationVP Script](https://github.com/horseyhorsey/PinGod.VP.Examples/blob/master/src/MoonStation/MoonStationVisualPinball/MoonStation%20(PinGod)-VPX10-6.vbs)
-
-## Adresses - OSC
-
-- `/evt` - "game_ready"
 
 ## VP Controller Methods
 
@@ -89,10 +81,11 @@ Visual Pinball Example:
 ```
 
 ### Extra Machine Items
+---
 
 By default the memory is allocated a set number of items.
 
-- Coils = 34, Lamps = 64, Leds  = 64
+- Coils = 34, Lamps = 64, Leds  = 64, Switches = 128
 
 If you want to increase you can add properties like the above display properties.
 
@@ -130,4 +123,3 @@ VP `Controller.Stop`
 `Controller.Switch 69, 0`
 
 `vpmPulseSw 69`
-

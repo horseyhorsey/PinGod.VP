@@ -1,8 +1,8 @@
-name: .NET
+name: .NET 472
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop/add_switch_memory_mapping]
   pull_request:
     branches: [ master ]
 
@@ -14,19 +14,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
+      uses: NuGet/setup-nuget@v1.0.2
     - name: Restore dependencies
-      run: dotnet restore "PinGod.VP/PinGod.VP.csproj"
+      run: nuget restore PinGod.VP.sln
     - name: Build
-      run: dotnet build  "PinGod.VP/PinGod.VP.csproj" --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish -c Release -r win-x86 "PinGod.VP/PinGod.VP.csproj"
+      run: msbuild PinGod.VP.sln /p:Configuration=Release /p:DeployOnBuild=true /p:Platform=x86
     - name: Build Artifact x86
       uses: actions/upload-artifact@v2
       with:
         name: PinGod.VP
-        path: D:\a\PinGod.VP\PinGod.VP\PinGod.VP\bin\Release\net5.0\win-x86\publish 
+        path: D:\a\PinGod.VP\PinGod.VP\PinGod.VP\bin\x86\Release
