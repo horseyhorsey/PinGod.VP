@@ -25,8 +25,8 @@ jobs:
       run: nuget restore PinGod.VP.sln
  
     - name: MSBUild
-      working-directory: src
-      run: msbuild D:\a\PinGod.VP\PinGod.VP\PinGod.VP\PinGod.VP.sln /p:Configuration=Release /p:DeployOnBuild=true /p:Platform=x86
+      working-directory: D:\a\PinGod.VP\PinGod.VP\
+      run: msbuild PinGod.VP.sln /p:Configuration=Release /p:DeployOnBuild=true /p:Platform=x86
 
     - name: Build Artifact x86
       uses: actions/upload-artifact@v2
