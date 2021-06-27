@@ -15,8 +15,8 @@ jobs:
     - uses: actions/checkout@v1
       name: Checkout Code     
 
-    - name: Setup MSBuild Path
-      uses: warrenbuckley/Setup-MSBuild@v1       
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
@@ -24,7 +24,8 @@ jobs:
     - name: Restore NuGet Packages
       run: nuget restore PinGod.VP.sln
  
-    - name: Build and Publish Web App
+    - name: MSBUild
+      working-directory: src
       run: msbuild PinGod.VP.sln /p:Configuration=Release /p:DeployOnBuild=true /p:Platform=x86
 
     - name: Build Artifact x86
