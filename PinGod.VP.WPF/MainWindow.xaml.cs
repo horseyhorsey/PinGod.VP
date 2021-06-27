@@ -39,7 +39,7 @@ namespace PinGod.VP.WPF
                 {
                     MainGrid.Visibility = Visibility.Hidden;
 
-                    var result = RunProcess(false);
+                    var result = RunProcess(true);
 
                     if (result > 0) ShowMessage("An error with regasm. Code: " + result);
                     else { ShowMessage(pingodvpdll + " Registered."); }
@@ -87,8 +87,9 @@ namespace PinGod.VP.WPF
         private int RunProcess(bool register)
         {
             var proc = new Process();
-            var regasmArgs = pingodvpdll;
-            regasmArgs += register ? "" : " /unregister";
+            var dllPath = System.IO.Path.GetFullPath(pingodvpdll);
+            var regasmArgs = " \"" + dllPath + "\" ";
+            regasmArgs += register ? " /codebase" : " /u";
             var sinfo = new ProcessStartInfo(net472, regasmArgs);
             proc.StartInfo = sinfo;
             proc.Start();

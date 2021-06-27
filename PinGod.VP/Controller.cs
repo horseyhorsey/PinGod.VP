@@ -244,7 +244,7 @@ namespace PinGod.VP
         public void Stop()
         {
             Switch(0, (int)GameSyncState.quit);
-            Task.Delay(100);
+            Task.Delay(1000); //give a little time for the game to pick up the quit
 
             ControllerRunning = false;
             GameRunning = false;
