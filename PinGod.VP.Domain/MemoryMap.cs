@@ -86,6 +86,22 @@ namespace PinGod.VP.Domain
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Gets switch state from the <see cref="switchesMap"/>
+        /// </summary>
+        /// <param name="swNum"></param>
+        /// <returns></returns>
+        public int GetSwitch(int swNum)
+        {
+            switchesMap.Read<int>(swNum, out var currState);
+            return currState;
+        }
+
+        /// <summary>
+        /// Sets the switch state to <see cref="switchesMap"/>
+        /// </summary>
+        /// <param name="swNum"></param>
+        /// <param name="state"></param>
         public void SetSwitch(int swNum, byte state)
         {
             switchesMap.Write(swNum, state);

@@ -267,6 +267,7 @@ namespace PinGod.VP
                 _memoryMap.SetSwitch(swNum, (byte)state);
             }            
         }
+        public int GetSwitch(int swNum) => _memoryMap?.GetSwitch(swNum) ?? 0;
 
         #region Private methods
 

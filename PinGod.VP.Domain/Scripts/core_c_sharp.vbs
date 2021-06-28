@@ -1761,11 +1761,11 @@ Class cvpmDropTarget
 		Dim mSwcopy
 		If mSwAllDn Then
 			mSwcopy = mSwAllDn
-			Controller.Switch(mSwcopy) = aStatus
+			Controller.Switch mSwcopy, aStatus
 		End If
 		If mSwAnyUp Then
 			mSwcopy = mSwAnyUp
-			Controller.Switch(mSwcopy) = Not aStatus
+			Controller.Switch mSwcopy, (Not aStatus)
 		End If
 	End Sub
 
@@ -1828,7 +1828,7 @@ Class cvpmDropTarget
 		Dim mSwcopy
 		mSwAnyUp = aSwAnyUp
 		mSwcopy = mSwAnyUp
-		Controller.Switch(mSwcopy) = True
+		Controller.Switch mSwcopy, True
 	End Property
 	Public Property Let AllDownSw(aSwAllDn) : mSwAllDn = aSwAllDn : End Property
 	Public Property Get AllDown : AllDown = mAllDn : End Property
@@ -1844,7 +1844,7 @@ Class cvpmDropTarget
 		Controller.Switch(mSwcopy) = True
 		For Each ii In mDropSw
 			mSwcopy = ii
-			If Not Controller.Switch(mSwcopy) Then Exit Sub
+			If Not Controller.GetSwitch(mSwcopy) Then Exit Sub
 		Next
 		mAllDn = True : CheckAllDn True
 	End Sub
@@ -1856,7 +1856,7 @@ Class cvpmDropTarget
 		Dim ii : If Not aEnabled Then Exit Sub
 		PlaySound mRaiseSnd : vpmSolWall mDropObj(aNo-1), False, False
 		mSwcopy = mDropSw(aNo-1)
-		Controller.Switch(mSwcopy) = False
+		Controller.Switch mSwcopy, False
 		mAllDn = False : CheckAllDn False
 	End Sub
 
@@ -1865,7 +1865,7 @@ Class cvpmDropTarget
 		Dim ii : If Not aEnabled Then Exit Sub
 		PlaySound mDropSnd
 		For Each ii In mDropObj : vpmSolWall ii, False, True : Next
-		For Each ii In mDropSw  : mSwcopy = ii : Controller.Switch(mSwcopy) = True : Next
+		For Each ii In mDropSw  : mSwcopy = ii : Controller.Switch mSwcopy, True : Next
 		mAllDn = True : CheckAllDn True
 	End Sub
 
@@ -1874,7 +1874,7 @@ Class cvpmDropTarget
 		Dim ii : If Not aEnabled Then Exit Sub
 		PlaySound mRaiseSnd
 		For Each ii In mDropObj : vpmSolWall ii, False, False : Next
-		For Each ii In mDropSw  : mSwcopy = ii : Controller.Switch(mSwcopy) = False : Next
+		For Each ii In mDropSw  : mSwcopy = ii : Controller.Switch mSwcopy, False : Next
 		mAllDn = False : CheckAllDn False
 	End Sub
 
@@ -2159,7 +2159,7 @@ Class cvpmCaptiveBall
 		vpmCreateBall mKickers(mKickNo + (mKickNo <> NailedBalls))
 		If RestSwitch Then
 			mSwcopy = RestSwitch
-			Controller.Switch(mSwcopy) = True
+			Controller.Switch mSwcopy, True
 		End If
 	End Sub
 
@@ -2171,7 +2171,7 @@ Class cvpmCaptiveBall
 		Dim mSwcopy
 		If RestSwitch Then
 			mSwcopy = RestSwitch
-			Controller.Switch(mSwcopy) = True
+			Controller.Switch mSwcopy, True
 		End If
 	End Sub
 
@@ -2190,7 +2190,7 @@ Class cvpmCaptiveBall
 		mKickers(mKickNo).Kick mBallDir, force : mBallKicked = True
 		If RestSwitch Then
 			mSwcopy = RestSwitch
-			Controller.Switch(mSwcopy) = False
+			Controller.Switch mSwcopy, False
 		End If
 	End Sub
 
@@ -2200,7 +2200,7 @@ Class cvpmCaptiveBall
 		mBallKicked = False
 		If RestSwitch Then
 			mSwcopy = RestSwitch
-			Controller.Switch(mSwcopy) = True
+			Controller.Switch mSwcopy, True
 		End If
 	End Sub
 
@@ -2265,7 +2265,7 @@ Class cvpmVLock
 			mKick(ii).Enabled = False
 			If mSw(ii) Then
 				mSwcopy = mSw(ii)
-				Controller.Switch(mSwcopy) = False
+				Controller.Switch mSwcopy, False
 			End If
 		Next
 		If ExitForce > 0 Then ' Up
@@ -2281,7 +2281,7 @@ Class cvpmVLock
 		For ii = 0 To mBalls-1
 			If mSw(ii) Then
 				mSwcopy = mSw(ii)
-				Controller.Switch(mSwcopy) = True
+				Controller.Switch mSwcopy, True
 			End If
 		Next
 	End Sub
@@ -2294,9 +2294,9 @@ Class cvpmVLock
 		For ii = 0 To mSize
 			mSwcopy = mSw(ii)
 			If ii >= aBalls Then
-				mKick(ii).DestroyBall : If mSwcopy Then Controller.Switch(mSwcopy) = False
+				mKick(ii).DestroyBall : If mSwcopy Then Controller.Switch mSwcopy, False
 			Else
-				vpmCreateBall mKick(ii) : If mSwcopy Then Controller.Switch(mSwcopy) = True
+				vpmCreateBall mKick(ii) : If mSwcopy Then Controller.Switch mSwcopy, True
 			End If
 		Next
 	End Property
@@ -2306,7 +2306,7 @@ Class cvpmVLock
 		aNo = aNo - 1
 		If mSw(aNo) Then
 			mSwcopy = mSw(aNo)
-			Controller.Switch(mSwcopy) = True
+			Controller.Switch mSwcopy, True
 		End If
 		If aBall.VelY < -1 Then Exit Sub ' Allow small upwards speed
 		If aNo = mSize Then mBalls = mBalls + 1
@@ -2318,7 +2318,7 @@ Class cvpmVLock
 		aNo = aNo - 1
 		If mSw(aNo) Then
 			mSwcopy = mSw(aNo)
-			Controller.Switch(mSwcopy) = False
+			Controller.Switch mSwcopy, False
 		End If
 		If aBall.VelY > -1 Then
 			If aNo = 0 Then mBalls = mBalls - 1
@@ -2475,7 +2475,7 @@ Class cvpmImpulseP
 		End With
 		If SwitchOn = True Then
 			mSwcopy = SwitchNum
-			Controller.Switch(mSwcopy) = 1
+			Controller.Switch mSwcopy, 1
 		End If
 		BallOn = 1
 	End Sub
@@ -2488,7 +2488,7 @@ Class cvpmImpulseP
 		End With
 		If SwitchOn = True Then
 			mSwcopy = SwitchNum
-			Controller.Switch(mSwcopy) = 0
+			Controller.Switch mSwcopy, 0
 		End If
 		BallOn = 0
 	End Sub
@@ -2973,7 +2973,7 @@ Private Sub vpmToggleObj(aObj, aEnabled)
 		Case "Kicker", "Trigger", "Timer"  aObj.Enabled   = aEnabled
 		Case "Gate"                        aObj.Open      = aEnabled
 		Case "Primitive", "Ramp", "Rubber", "Flasher" aObj.Visible = aEnabled
-		Case "Integer"                     mSwcopy = aObj : Controller.Switch(mSwcopy) = aEnabled
+		Case "Integer"                     mSwcopy = aObj : Controller.Switch mSwcopy, aEnabled
 		Case Else MsgBox "vpmToggleObj: Unhandled Object " & TypeName(aObj)
 	End Select
 End Sub

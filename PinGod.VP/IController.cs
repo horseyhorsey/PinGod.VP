@@ -92,5 +92,8 @@ namespace PinGod.VP.Domain
         /// <param name="state"></param>
         [ComVisible(true)]
         void Switch(int swNum, int state);
+
+        [ComVisible(true)]
+        int GetSwitch(int swNum);
     }
 }

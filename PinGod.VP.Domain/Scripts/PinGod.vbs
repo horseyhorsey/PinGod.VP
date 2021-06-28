@@ -4,10 +4,10 @@ Private Sub LoadCore
 	On Error Resume Next
 	If VPBuildVersion < 0 Or Err Then
 		Dim fso : Set fso = CreateObject("Scripting.FileSystemObject") : Err.Clear
-		ExecuteGlobal fso.OpenTextFile("core_c_sharp.vbs", 1).ReadAll    : If Err Then MsgBox "Can't open ""PTCore.vbs""" : Exit Sub
+		ExecuteGlobal fso.OpenTextFile("core_c_sharp.vbs", 1).ReadAll    : If Err Then MsgBox "Can't open ""core_c_sharp.vbs""" : Exit Sub
 		ExecuteGlobal fso.OpenTextFile("VPMKeys.vbs", 1).ReadAll : If Err Then MsgBox "Can't open ""vpmkeys.vbs""" : Exit Sub
 	Else
-		ExecuteGlobal GetTextFile("core_c_sharp.vbs")    : If Err Then MsgBox "Can't open ""PTCore.vbs"""    : Exit Sub
+		ExecuteGlobal GetTextFile("core_c_sharp.vbs")    : If Err Then MsgBox "Can't open ""core_c_sharp.vbs"""    : Exit Sub
 		ExecuteGlobal GetTextFile("VPMKeys.vbs") : If Err Then MsgBox "Can't open ""vpmkeys.vbs""" : Exit Sub
 	End If
 End Sub
