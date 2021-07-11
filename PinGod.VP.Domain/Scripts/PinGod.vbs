@@ -13,21 +13,20 @@ Private Sub LoadCore
 End Sub
 
 ' Cabinet switches
-Const swCoin1  = 0
-Const swCoin2  = 1
-Const swCoin3  = 2
-Const swCoin4  = 3
-Const swCancel = 4
-Const swDown   = 5
-Const swUp     = 6
-Const swEnter  = 7
-Const swCoinDoor  = 8
-Const swLLFlip = 9
-Const swLRFlip = 11
-Const swULFlip = 13
-Const swURFlip = 15
-Const swSlamTilt = 16
-Const swTilt = 17
+Const swCoin1		= 1
+Const swCoin2		= 2
+Const swCoin3		= 3
+Const swCancel		= 4
+Const swDown		= 5
+Const swUp			= 6
+Const swEnter		= 7
+Const swCoinDoor	= 8
+Const swLLFlip		= 9
+Const swLRFlip		= 11
+Const swULFlip		= 13
+Const swURFlip		= 15
+Const swSlamTilt	= 16
+Const swTilt		= 17
 Const swStartButton = 19
 
 Private swStartButtonX,swCoinDoorX,swSlamTiltX
@@ -41,8 +40,7 @@ On Error Goto 0
 vpmSystemHelp = "PinGod Keys:" & vbNewLine &_
   vpmKeyName(keyInsertCoin1)  & vbTab & "Insert Coin #1" & vbNewLine &_
   vpmKeyName(keyInsertCoin2)  & vbTab & "Insert Coin #2" & vbNewLine &_
-  vpmKeyName(keyInsertCoin3)  & vbTab & "Insert Coin #3" & vbNewLine &_
-  vpmKeyName(keyInsertCoin4)  & vbTab & "Insert Coin #4" & vbNewLine &_
+  vpmKeyName(keyInsertCoin3)  & vbTab & "Insert Coin #3" & vbNewLine &_  
   vpmKeyName(keyCancel) & vbTab & "Escape (Coin Door)" & vbNewLine &_
   vpmKeyName(keyDown)  & vbTab & "Down (Coin Door)" & vbNewLine &_
   vpmKeyName(keyUp)  & vbTab & "Up (Coin Door)" & vbNewLine &_
@@ -64,7 +62,6 @@ Function vpmKeyDown(ByVal keycode)
 			Case keyInsertCoin1  vpmTimer.AddTimer 150,"vpmTimer.PulseSw swCoin1'" : Playsound SCoin
 			Case keyInsertCoin2  vpmTimer.AddTimer 150,"vpmTimer.PulseSw swCoin2'" : Playsound SCoin
 			Case keyInsertCoin3  vpmTimer.AddTimer 150,"vpmTimer.PulseSw swCoin3'" : Playsound SCoin
-			Case keyInsertCoin4  vpmTimer.AddTimer 150,"vpmTimer.PulseSw swCoin4'" : Playsound SCoin
 			Case StartGameKey    swCopy = swStartButtonX : .Switch swCopy,1
 			Case keyCancel       swCopy = swCancel :       .Switch swCopy,1
 			Case keyDown         swCopy = swDown :         .Switch swCopy,1
