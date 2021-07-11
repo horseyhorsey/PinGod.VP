@@ -267,6 +267,11 @@ namespace PinGod.VP
                 _memoryMap.SetSwitch(swNum, (byte)state);
             }            
         }
+
+        public int GetLamp(int lampNum) => _memoryMap?.GetLamp(lampNum) ?? 0;
+
+        public int GetLed(int ledNum) => _memoryMap?.GetLed(ledNum) ?? 0;
+
         public int GetSwitch(int swNum) => _memoryMap?.GetSwitch(swNum) ?? 0;
 
         #region Private methods

@@ -132,9 +132,40 @@ namespace PinGod.VP.Tests
 
             //check the switch is on - index
             Assert.Equal(1, buff[0]);
-            Assert.Equal(1, buff[34]);
-            Assert.Equal(1, buff[44]);
-            Assert.Equal(1, buff[47]);
+            Assert.Equal(1, buff[35]);
+            Assert.Equal(1, buff[45]);
+            Assert.Equal(1, buff[48]);
+        }
+
+        [Fact]
+        public void WriteAndGetSwitch_Tests()
+        {
+            Controller.SwitchCount = 64;
+
+            //create mapping with other machine items
+            int[] leds = new int[192]; //leds to test with
+
+            //offset 960
+            var offset = Controller.CoilCount * 2 + Controller.LampCount * 2 + sizeof(int) * Controller.LedCount * 3;
+            var va = mmf.CreateViewAccessor(offset, Controller.SwitchCount * 2, MemoryMappedFileAccess.ReadWrite);
+
+            //set some switches
+            Controller.Switch(0, 1);
+            Controller.Switch(35, 1);
+            Controller.Switch(45, 1);
+            Controller.Switch(48, 1);
+
+            //get the switches from memory
+            byte[] buff = new byte[Controller.SwitchCount * 2];
+            va.ReadArray(0, buff, 0, Controller.SwitchCount * 2);
+
+            //check the switch is on - index
+            Assert.Equal(1, buff[0]);
+            Assert.Equal(1, buff[35]);
+            Assert.Equal(1, buff[45]);
+            Assert.Equal(1, buff[48]);
+
+            Assert.Equal(1, Controller.GetSwitch(48));
         }
 
         #region Support Methods

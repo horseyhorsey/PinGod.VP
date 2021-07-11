@@ -106,5 +106,17 @@ namespace PinGod.VP.Domain
         {
             switchesMap.Write(swNum, state);
         }
+
+        public int GetLamp(int lampNum)
+        {
+            lampsMap.Read<int>(lampNum, out var currState);
+            return currState;
+        }
+
+        public int GetLed(int ledNum)
+        {
+            ledsMap.Read<int>(ledNum, out var currState);
+            return currState;
+        }
     }
 }

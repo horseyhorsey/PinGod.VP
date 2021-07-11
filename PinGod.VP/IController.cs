@@ -9,14 +9,14 @@ namespace PinGod.VP.Domain
     public interface IController
     {
         #region Display Properties
-        bool DisplayFullScreen { get; set; }
-        int DisplayWidth { get; set; }
-        int DisplayHeight { get; set; }
-        int DisplayX { get; set; }
-        int DisplayY { get; set; }
         bool DisplayAlwaysOnTop { get; set; }
+        bool DisplayFullScreen { get; set; }
+        int DisplayHeight { get; set; }
         bool DisplayLowDpi { get; set; }
         bool DisplayNoWindow { get; set; }
+        int DisplayWidth { get; set; }
+        int DisplayX { get; set; }
+        int DisplayY { get; set; }
         #endregion
 
         #region Machine Items
@@ -26,14 +26,7 @@ namespace PinGod.VP.Domain
         byte SwitchCount { get; set; }
         #endregion
 
-        bool GameRunning { get; set; }       
-
-        /// <summary>
-        /// Get changed coils / solenoids receive
-        /// </summary>
-        /// <returns>object[i,2] Id, State</returns>
-        [ComVisible(true)]
-        dynamic ChangedSolenoids();
+        bool GameRunning { get; set; }
 
         /// <summary>
         /// Get changed lamps
@@ -50,11 +43,41 @@ namespace PinGod.VP.Domain
         dynamic ChangedPDLeds();
 
         /// <summary>
+        /// Get changed coils / solenoids receive
+        /// </summary>
+        /// <returns>object[i,2] Id, State</returns>
+        [ComVisible(true)]
+        dynamic ChangedSolenoids();
+        /// <summary>
         /// Used by the implementing class. Here for testing creating maps without display
         /// </summary>
         /// <param name="size"></param>
         [ComVisible(true)]
         void CreateMemoryMap(long size = 2048);
+
+        /// <summary>
+        /// Gets lamp state
+        /// </summary>
+        /// <param name="lampNum"></param>
+        /// <returns></returns>
+        [ComVisible(true)]
+        int GetLamp(int lampNum);
+
+        /// <summary>
+        /// Get led state
+        /// </summary>
+        /// <param name="ledNum"></param>
+        /// <returns></returns>
+        [ComVisible(true)]
+        int GetLed(int ledNum);
+
+        /// <summary>
+        /// Gets a switches state
+        /// </summary>
+        /// <param name="swNum"></param>
+        /// <returns></returns>
+        [ComVisible(true)]
+        int GetSwitch(int swNum);
 
         /// <summary>
         /// Pause the display
@@ -92,8 +115,5 @@ namespace PinGod.VP.Domain
         /// <param name="state"></param>
         [ComVisible(true)]
         void Switch(int swNum, int state);
-
-        [ComVisible(true)]
-        int GetSwitch(int swNum);
     }
 }
