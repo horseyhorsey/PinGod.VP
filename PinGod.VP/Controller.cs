@@ -323,19 +323,17 @@ namespace PinGod.VP
                 while (!GameRunning)
                 {                    
                     var coils = _memoryMap.GetCoilStates();
-                    for (int i = 0; i < coils.Length; i+=2)
+                    if(coils.Length > 1)
                     {
-                        if(coils[i] == 0)
-                        {               
-                            if(coils[i + 1] == 1)
-                            {
-                                SetGameDisplayRunning();
-                                GameRunning = true;
-                            }      
+                        if(coils[1] == 1) // coil 0 is enabled, then set game running because screen has fully loaded
+                        {
+                            SetGameDisplayRunning();
+                            GameRunning = true;
                             break;
                         }
                     }
-                    Task.Delay(369);
+
+                    Task.Delay(369);                    
                 }
             });
         }

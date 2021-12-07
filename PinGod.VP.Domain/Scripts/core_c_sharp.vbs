@@ -1765,7 +1765,7 @@ Class cvpmDropTarget
 		End If
 		If mSwAnyUp Then
 			mSwcopy = mSwAnyUp
-			Controller.Switch mSwcopy, (Not aStatus)
+			Controller.Switch mSwcopy, Not aStatus
 		End If
 	End Sub
 
@@ -1841,7 +1841,7 @@ Class cvpmDropTarget
 		Dim ii, mSwcopy
 		vpmSolWall mDropObj(aNo-1), mDropSnd, True
 		mSwcopy = mDropSw(aNo-1)
-		Controller.Switch(mSwcopy) = True
+		Controller.Switch mSwcopy, True
 		For Each ii In mDropSw
 			mSwcopy = ii
 			If Not Controller.GetSwitch(mSwcopy) Then Exit Sub
