@@ -429,6 +429,7 @@ Dim UseModSol:If IsEmpty(Eval("UseVPMModSol"))=true Then UseModSol=false Else Us
 Dim UseColoredDMD:If IsEmpty(Eval("UseVPMColoredDMD"))=true Then UseColoredDMD=false Else UseColoredDMD = UseVPMColoredDMD
 Dim UseNVRAM:If IsEmpty(Eval("UseVPMNVRAM"))=true Then UseNVRAM=false Else UseNVRAM = UseVPMNVRAM
 Dim NVRAMCallback
+Dim SpecialSol ' Solenoid number to check for in ChangedSolenoids. If found this sends a byte instead of a bool. This allows us to send a value 0-255 to the scripts SolCallback
 
 ' Assign Null Default Sub so script won't error if only one is defined in a script (should redefine in your script)
 Set GICallback = GetRef("NullSub")
@@ -2853,7 +2854,7 @@ Sub vpmDoLampUpdate(aNo, aEnabled)
 End Sub
 
 Sub PinMAMETimer_Timer
-	Dim ChgLamp,ChgSol,ChgGI, ii, tmp, idx, nsol, solon, ChgLed
+	Dim ChgLamp,ChgSol,ChgGI, ii, tmp, idx, nsol, solon, solval, ChgLed
 	Dim DMDp
 	Dim ChgNVRAM
 
@@ -2908,9 +2909,10 @@ Sub PinMAMETimer_Timer
 		For ii = 0 To UBound(ChgSol)
 			nsol = ChgSol(ii, 0)
 			tmp = SolCallback(nsol)
-			solon = ChgSol(ii, 1)
-			'debug.print "coil: " & nsol & " on:" & solon
-			If solon > 1 Then solon = 1
+			solon = ChgSol(ii, 1) : solval = solon			
+			If solon > 1 Then solon = 1			
+			'debug.print "coil: " & nsol & " on:" & solval
+			
 			If UseModSol Then
 				If solon <> SolPrevState(nsol) Then
 					SolPrevState(nsol) = solon
@@ -2919,7 +2921,13 @@ Sub PinMAMETimer_Timer
 				tmp = SolModCallback(nsol)
 				If tmp <> "" Then Execute tmp & " " & ChgSol(ii, 1)
 			Else
-				If tmp <> "" Then Execute tmp & vpmTrueFalse(solon+1)
+				If tmp <> "" Then 
+					if nsol = SpecialSol Then 
+						Execute tmp & " " & solval
+					else 
+						Execute tmp & vpmTrueFalse(solon+1)
+					end if
+				End If
 			End If
 		if UseSolenoids > 1 then if nsol = vpmFlips.Solenoid then vpmFlips.TiltSol solon ': msgbox solon
 		Next

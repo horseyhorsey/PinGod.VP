@@ -7,6 +7,8 @@ A COM controller to send / receive pinball events to Godot display.
 
 Use setup application to simplify regasm usage.
 
+![image](screen.jpg)
+
 ## Visual Pinball Setup
 
 - Copy `core_c_sharp.vbs` and `PinGod.vbs` to `VisualPinball/Scripts`
