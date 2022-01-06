@@ -46,6 +46,9 @@ namespace PinGod.VP
             _memoryMap = new MemoryMap();            
         }
 
+        [DllImportAttribute("User32.dll")]
+        public static extern System.IntPtr BringWindowToTop(int hWnd);
+
         public void CreateMemoryMap(long size = 2048)
         {
             _memoryMap.CreateMemoryMap(size, coils: CoilCount, lamps: LampCount, leds: LedCount);
@@ -203,9 +206,13 @@ namespace PinGod.VP
             }
         }
 
+        /// <summary>
+        /// Activates Visual Pinball
+        /// </summary>
         private void SetGameDisplayRunning()
-        {
+        {            
             ActivateVpWindow(vpHwnd);
+            BringWindowToTop(vpHwnd);
         }
 
         /// <summary>
@@ -220,8 +227,7 @@ namespace PinGod.VP
 
         public void Run(int vpHwnd, string game)
         {
-            string displayArgs = BuildDisplayArguments();
-            var sinfo = new ProcessStartInfo(game, displayArgs);
+            var sinfo = new ProcessStartInfo(game, DisplayNoWindow ? "--no-window" : "");
             Run(vpHwnd, sinfo);
         }
 
@@ -232,11 +238,13 @@ namespace PinGod.VP
         /// <param name="game"></param>
         public void RunDebug(int vpHwnd, string game)
         {
-            string displayArgs = BuildDisplayArguments();
-            var sinfo = new ProcessStartInfo("godot", displayArgs);
+            var sinfo = new ProcessStartInfo("godot", DisplayNoWindow ? "--no-window" : "");
             sinfo.WorkingDirectory = game;
             Run(vpHwnd, sinfo);
         }
+
+        [DllImportAttribute("User32.dll")]
+        public static extern System.IntPtr SetForegroundWindow(int hWnd);
 
         /// <summary>
         /// Stop and clean up
@@ -285,6 +293,13 @@ namespace PinGod.VP
             if (vpHwnd > 0)
                 SetForegroundWindow(vpHwnd);
         }
+
+        /// <summary>
+        /// args for starting godot. <para/>
+        /// no point using this anymore when the display creates an override.cfg and the user can also do this in the window now <para/>
+        /// the player should run the game first then set up the window
+        /// </summary>
+        /// <returns></returns>
         private string BuildDisplayArguments()
         {
             var displayArgs = $"--position {DisplayX}, {DisplayY} ";
@@ -299,8 +314,6 @@ namespace PinGod.VP
             return displayArgs;
         }
 
-        [DllImportAttribute("User32.dll")]
-        private static extern System.IntPtr SetForegroundWindow(int hWnd);
         private void Run(int vpHwnd, ProcessStartInfo startInfo)
         {
             //VP game window
@@ -326,19 +339,27 @@ namespace PinGod.VP
                     if(coils.Length > 1)
                     {
                         if(coils[1] == 1) // coil 0 is enabled, then set game running because screen has fully loaded
-                        {
-                            SetGameDisplayRunning();
-                            GameRunning = true;
+                        {                            
+                            GameRunning = true;                            
                             break;
                         }
                     }
-
-                    Task.Delay(369);                    
+                    else
+                    {
+                        Task.Delay(100);
+                    }                    
                 }
+
+                //activate VP 2 - when game is running
+                SetGameDisplayRunning();
             });
+
+
+            //activate VP 1 - to hide debug window if present
+            SetGameDisplayRunning();
         }
 
-        bool isDisposing = false;        
+        bool isDisposing = false;
         public void Dispose()
         {
             if (isDisposing) return;
